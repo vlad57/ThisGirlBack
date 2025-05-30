@@ -1,0 +1,156 @@
+﻿@page
+@model API.Templates.Emails.Auth.en.RegisterConfirmationEmailViewModelModel
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Confirmation - @Model.CompanyName</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .email-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-align: center;
+            padding: 40px 20px;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 300;
+        }
+        .email-body {
+            padding: 40px 30px;
+        }
+        .welcome-message {
+            font-size: 18px;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .content-text {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.8;
+        }
+        .cta-container {
+            text-align: center;
+            margin: 40px 0;
+        }
+        .cta-button {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 15px 40px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.2s;
+        }
+        .cta-button:hover {
+            transform: translateY(-2px);
+        }
+        .alternative-link {
+            background-color: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 30px 0;
+            border-left: 4px solid #667eea;
+        }
+        .alternative-link p {
+            margin: 0;
+            color: #666;
+            font-size: 14px;
+        }
+        .alternative-link a {
+            color: #667eea;
+            word-break: break-word;
+        }
+        .email-footer {
+            background-color: #f8f9fa;
+            padding: 30px;
+            text-align: center;
+            border-top: 1px solid #e9ecef;
+        }
+        .expiry-notice {
+            color: #dc3545;
+            font-weight: 500;
+            margin: 20px 0;
+            padding: 15px;
+            background-color: #fff5f5;
+            border-radius: 8px;
+            border-left: 4px solid #dc3545;
+        }
+        .support-info {
+            color: #999;
+            font-size: 12px;
+            margin-top: 20px;
+        }
+        .company-name {
+            font-weight: 600;
+            color: #333;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Welcome to <span class="company-name">@Model.CompanyName</span></h1>
+        </div>
+        
+        <div class="email-body">
+            <div class="welcome-message">
+                Hello @Model.Username,
+            </div>
+            
+            <div class="content-text">
+                Thank you for registering on our platform! We're thrilled to have you join our community.
+                <br><br>
+                To complete your registration and secure your account, we need to verify your email address.
+                This step ensures you receive all important communications from us.
+            </div>
+
+            <div class="cta-container">
+                <a href="@Model.ConfirmationUrl" class="cta-button">
+                    ✓ Confirm my email address
+                </a>
+            </div>
+
+            <div class="expiry-notice">
+                ⏰ <strong>Important:</strong> This link will expire on @Model.ExpiryDate.ToString("MM/dd/yyyy at HH:mm"). 
+                Don’t wait too long to confirm your account!
+            </div>
+
+            <div class="alternative-link">
+                <p><strong>Having trouble with the button?</strong></p>
+                <p>Copy and paste this link into your browser:</p>
+                <p><a href="@Model.ConfirmationUrl">@Model.ConfirmationUrl</a></p>
+            </div>
+        </div>
+
+        <div class="email-footer">
+            <p class="company-name">@Model.CompanyName</p>
+            <div class="support-info">
+                If you did not create an account on our site, you can ignore this email.
+                <br>
+                For any questions, feel free to contact us at: <a href="mailto:@Model.SupportEmail">@Model.SupportEmail</a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

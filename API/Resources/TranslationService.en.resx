@@ -1,0 +1,5 @@
+<root>
+  <data name="Errors.Auth.UserExists" xml:space="preserve">
+    <value>User already exists</value>
+  </data>
+</root>
