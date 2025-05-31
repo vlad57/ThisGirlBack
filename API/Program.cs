@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Text;
+using API.Constants;
 using API.Data;
 using API.Models;
 using API.Providers;
@@ -25,11 +26,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
     var supportedCultures = new[]
     {
-        new CultureInfo("fr"),
-        new CultureInfo("en"),
+        new CultureInfo(LanguageConstants.Fr),
+        new CultureInfo(LanguageConstants.En),
     };
 
-    options.DefaultRequestCulture = new RequestCulture("fr");
+    options.DefaultRequestCulture = new RequestCulture(LanguageConstants.Fr);
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
     

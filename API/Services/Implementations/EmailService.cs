@@ -2,6 +2,7 @@ using System;
 using System.Net;
 using System.Net.Mail;
 using API.Common;
+using API.Constants;
 using API.Services.Interfaces;
 using API.Templates.Emails.Auth.Interfaces;
 
@@ -44,7 +45,7 @@ public class EmailService : IEmailService
 
             IRegisterConfirmationEmailViewModelModel emailViewModelPath = new Templates.Emails.Auth.en.RegisterConfirmationEmailViewModelModel();
 
-            if (_translationService.GetCurrentCultureCode() == "en")
+            if (_translationService.GetCurrentCultureCode() == LanguageConstants.En)
             {
                 emailViewModelPath = new Templates.Emails.Auth.en.RegisterConfirmationEmailViewModelModel();
             }

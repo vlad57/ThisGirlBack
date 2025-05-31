@@ -1,4 +1,5 @@
 using System;
+using API.Constants;
 using Microsoft.AspNetCore.Localization;
 
 namespace API.Providers;
@@ -11,7 +12,7 @@ public class LanguageProvider : RequestCultureProvider
     
         if (!string.IsNullOrEmpty(acceptLanguageHeader))
         {
-            var supportedCultures = new[] { "fr", "en" };
+            var supportedCultures = new[] { LanguageConstants.Fr, LanguageConstants.En };
             
             var cleanedLanguage = acceptLanguageHeader.Trim().ToLower();
             
