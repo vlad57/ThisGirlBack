@@ -7,17 +7,20 @@ public class LanguageProvider : RequestCultureProvider
 {
     public override Task<ProviderCultureResult?> DetermineProviderCultureResult(HttpContext httpContext)
     {
-        // Chercher la langue dans le header Accept-Language personnalisé
         var acceptLanguageHeader = httpContext.Request.Headers["Accept-Language"].FirstOrDefault();
-        
+    
         if (!string.IsNullOrEmpty(acceptLanguageHeader))
         {
             var supportedCultures = new[] { "fr", "en" };
             
-            if (supportedCultures.Contains(acceptLanguageHeader.ToLower()))
+            var cleanedLanguage = acceptLanguageHeader.Trim().ToLower();
+            
+            var primaryLanguage = cleanedLanguage.Split('-')[0];
+        
+            
+            if (supportedCultures.Contains(primaryLanguage))
             {
-                return Task.FromResult<ProviderCultureResult?>(
-                    new ProviderCultureResult(acceptLanguageHeader, acceptLanguageHeader));
+                return Task.FromResult<ProviderCultureResult?>(new ProviderCultureResult(primaryLanguage, primaryLanguage));
             }
         }
 

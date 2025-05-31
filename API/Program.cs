@@ -3,8 +3,11 @@ using System.Text;
 using API.Data;
 using API.Models;
 using API.Providers;
+using API.Services.Implementations;
+using API.Services.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Localization;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Scalar.AspNetCore;
@@ -15,6 +18,8 @@ builder.Services.AddLocalization(options =>
 {
     options.ResourcesPath = "Resources";
 });
+
+builder.Services.AddSingleton<LanguageProvider>();
 
 builder.Services.Configure<RequestLocalizationOptions>(options =>
 {
@@ -28,14 +33,11 @@ builder.Services.Configure<RequestLocalizationOptions>(options =>
     options.SupportedCultures = supportedCultures;
     options.SupportedUICultures = supportedCultures;
     
-    // Providers pour détecter la langue
-    options.RequestCultureProviders = new List<IRequestCultureProvider>
-    {
-        new LanguageProvider(),
-        new QueryStringRequestCultureProvider(),
-        new CookieRequestCultureProvider(),
-        new AcceptLanguageHeaderRequestCultureProvider()
-    };
+    options.RequestCultureProviders.Clear();
+    options.RequestCultureProviders.Add(new LanguageProvider());
+    options.RequestCultureProviders.Add(new QueryStringRequestCultureProvider());
+    options.RequestCultureProviders.Add(new CookieRequestCultureProvider());
+    options.RequestCultureProviders.Add(new AcceptLanguageHeaderRequestCultureProvider());
 });
 
 // Add services to the container.
@@ -64,6 +66,38 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         };
     });
 
+
+
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddControllersWithViews().AddRazorRuntimeCompilation();
+
+builder.Services.AddSession();
+builder.Services.AddSingleton<ITempDataProvider, SessionStateTempDataProvider>();
+
+
+builder.Services.Configure<Microsoft.AspNetCore.Mvc.Razor.RazorViewEngineOptions>(options =>
+{
+    options.ViewLocationFormats.Clear();
+
+    // Recherche par défaut
+    options.ViewLocationFormats.Add("/Views/{1}/{0}.cshtml");
+    options.ViewLocationFormats.Add("/Views/Shared/{0}.cshtml");
+
+    // Recherche dans le dossier Templates
+    options.ViewLocationFormats.Add("/Templates/Emails/{0}.cshtml");
+});
+
+
+
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IEmailService, EmailService>();
+builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
+builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddScoped<ITranslationService, TranslationService>();
+
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -75,6 +109,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseRequestLocalization();
+
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

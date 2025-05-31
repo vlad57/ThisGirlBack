@@ -40,34 +40,50 @@ public class AuthService : IAuthService
             return Result<User>.Fail(_translationService.GetTranslation("Errors.Auth.UserExists"), 400);
         }
 
-        var confirmationToken = _tokenService.GenerateEmailConfirmationToken();
-        var tokenExpiry = DateTime.UtcNow.AddHours(24);
+        await using var transaction = await _context.Database.BeginTransactionAsync();
 
-        var user = new User
+        try
         {
-            Username = request.Username,
-            Email = request.Email,
-            createdAt = new DateTime(),
-            EmailConfirmationToken = confirmationToken,
-            EmailConfirmationTokenExpiry = tokenExpiry,
-            IsEmailConfirmed = false
-        };
+            var confirmationToken = _tokenService.GenerateEmailConfirmationToken();
+            var tokenExpiry = DateTime.UtcNow.AddHours(24);
 
-        var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
+            var user = new User
+            {
+                Username = request.Username,
+                Email = request.Email,
+                createdAt = DateTime.Today,
+                EmailConfirmationToken = confirmationToken,
+                EmailConfirmationTokenExpiry = tokenExpiry,
+                IsEmailConfirmed = false
+            };
 
-        user.PasswordHash = hashedPassword;
+            var hashedPassword = new PasswordHasher<User>().HashPassword(user, request.Password);
+            user.PasswordHash = hashedPassword;
 
-        _context.Users.Add(user);
-        await _context.SaveChangesAsync();
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
 
+            var emailSent = await _emailService.SendConfirmationEmailAsync(
+                user.Email,
+                user.Username,
+                confirmationToken
+            );
 
-        var emailSent = await _emailService.SendConfirmationEmailAsync(
-            user.Email,
-            user.Username,
-            confirmationToken
-        );
+            if (!emailSent.Data)
+            {
+                await transaction.RollbackAsync();
+                return Result<User>.Fail(_translationService.GetTranslation("Errors.Auth.EmailSendFailed"), 500);
+            }
 
-        return Result<User>.Ok(user);
+            await transaction.CommitAsync();
+
+            return Result<User>.Ok(user);
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            return Result<User>.Fail(ex.Message, 500);
+        }
     }
     
     public async Task<bool> ConfirmEmailAsync(string email, string token)

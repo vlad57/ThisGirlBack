@@ -31,7 +31,7 @@ public class EmailService : IEmailService
     {
         try
         {
-            var smtpSettings = _config.GetSection("SmtpSettings");
+            var smtpSettings = _config.GetSection("SmtpClient");
             var baseUrl = _config["BaseUrl"] ?? "https://localhost:5001";
 
             using var client = new SmtpClient(smtpSettings["SMTPServerHost"], int.Parse(smtpSettings["SMTPServerPort"]!))
@@ -40,7 +40,7 @@ public class EmailService : IEmailService
                 EnableSsl = bool.Parse(smtpSettings["SMTPUseSsl"]!)
             };
 
-            var confirmationUrl = $"{baseUrl}/Account/ConfirmEmail?email={Uri.EscapeDataString(email)}&token={confirmationToken}";
+            var confirmationUrl = $"{baseUrl}/api/auth/confirm-email?email={Uri.EscapeDataString(email)}&token={confirmationToken}";
 
             IRegisterConfirmationEmailViewModelModel emailViewModelPath = new Templates.Emails.Auth.en.RegisterConfirmationEmailViewModelModel();
 
@@ -55,13 +55,12 @@ public class EmailService : IEmailService
             emailViewModelPath.SupportEmail = smtpSettings["SupportEmail"] ?? smtpSettings["FromAddress"]!;
             emailViewModelPath.CompanyName = _config["CompanyName"] ?? "Notre Application";
 
-            // Rendre la vue Razor en HTML
-            var emailBody = await _razorViewRenderer.RenderViewToStringAsync("Emails/ConfirmationEmail", emailViewModelPath);
+            var emailBody = await _razorViewRenderer.RenderViewToStringAsync("Auth/" + _translationService.GetCurrentCultureCode() + "/RegisterConfirmationEmail", emailViewModelPath);
 
             var mailMessage = new MailMessage
             {
                 From = new MailAddress(smtpSettings["FromAddress"]!, smtpSettings["FromName"]),
-                Subject = "Confirmez votre adresse email",
+                Subject = _translationService.GetTranslation("Auth.Emails.Subject.ConfirmEmailAddress"),
                 Body = emailBody,
                 IsBodyHtml = true
             };
@@ -69,7 +68,6 @@ public class EmailService : IEmailService
             mailMessage.To.Add(email);
 
             await client.SendMailAsync(mailMessage);
-            _logger.LogInformation($"Email de confirmation envoyé à {email}");
             return Result<bool>.Ok(true);
         }
         catch (Exception ex)
