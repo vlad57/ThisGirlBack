@@ -43,7 +43,7 @@ public class EmailService : IEmailService
 
             var confirmationUrl = $"{baseUrl}/api/auth/confirm-email?email={Uri.EscapeDataString(email)}&token={confirmationToken}";
 
-            IRegisterConfirmationEmailViewModelModel emailViewModelPath = new Templates.Emails.Auth.en.RegisterConfirmationEmailViewModelModel();
+            IRegisterConfirmationEmailViewModelModel emailViewModelPath = new Templates.Emails.Auth.fr.RegisterConfirmationEmailViewModelModel();
 
             if (_translationService.GetCurrentCultureCode() == LanguageConstants.En)
             {
