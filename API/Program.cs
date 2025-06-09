@@ -97,7 +97,16 @@ builder.Services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<ITranslationService, TranslationService>();
 
-
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowLocalhost4200", policy =>
+    {
+        policy.WithOrigins("http://localhost:4200")
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+});
 
 var app = builder.Build();
 
@@ -108,9 +117,13 @@ if (app.Environment.IsDevelopment())
     app.MapScalarApiReference();
 }
 
-app.UseHttpsRedirection();
+
+//@todo décommenter pour la prod.
+//app.UseHttpsRedirection();
 
 app.UseRequestLocalization();
+
+app.UseCors("AllowLocalhost4200");
 
 app.UseAuthentication();
 app.UseAuthorization();

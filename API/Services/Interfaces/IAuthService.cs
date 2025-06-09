@@ -7,6 +7,6 @@ namespace API.Services.Interfaces;
 
 public interface IAuthService
 {
-    Task<Result<User>> RegisterAsync(RegisterRequest request);
+    Task<Result<bool>> RegisterAsync(RegisterRequest request);
     Task<bool> ConfirmEmailAsync(string email, string token);
 }

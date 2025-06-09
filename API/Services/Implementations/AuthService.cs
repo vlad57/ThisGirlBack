@@ -33,11 +33,11 @@ public class AuthService : IAuthService
         _tokenService = tokenService;
     }
 
-    public async Task<Result<User>> RegisterAsync(RegisterRequest request)
+    public async Task<Result<bool>> RegisterAsync(RegisterRequest request)
     {
         if (await _context.Users.AnyAsync(u => u.Username == request.Username || u.Email == request.Email))
         {
-            return Result<User>.Fail(_translationService.GetTranslation("Errors.Auth.UserExists"), 400);
+            return Result<bool>.Fail(_translationService.GetTranslation("Errors.Auth.UserExists"), 400);
         }
 
         await using var transaction = await _context.Database.BeginTransactionAsync();
@@ -72,17 +72,17 @@ public class AuthService : IAuthService
             if (!emailSent.Data)
             {
                 await transaction.RollbackAsync();
-                return Result<User>.Fail(_translationService.GetTranslation("Errors.Auth.EmailSendFailed"), 500);
+                return Result<bool>.Fail(_translationService.GetTranslation("Errors.Auth.EmailSendFailed"), 500);
             }
 
             await transaction.CommitAsync();
 
-            return Result<User>.Ok(user);
+            return Result<bool>.Ok(true);
         }
         catch (Exception ex)
         {
             await transaction.RollbackAsync();
-            return Result<User>.Fail(ex.Message, 500);
+            return Result<bool>.Fail(ex.Message, 500);
         }
     }
     

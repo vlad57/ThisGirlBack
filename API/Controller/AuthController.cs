@@ -14,10 +14,10 @@ namespace API.Controller;
 public class AuthController(IAuthService authService) : ControllerBase
 {
     [HttpPost("register")]
-    [ProducesResponseType(typeof(User), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
     [ProducesResponseType(typeof(BadRequestError), StatusCodes.Status400BadRequest)]
     [ProducesResponseType(typeof(BadRequestError), StatusCodes.Status500InternalServerError)]
-    public async Task<ActionResult<User>> Register(RegisterRequest request)
+    public async Task<ActionResult<bool>> Register(RegisterRequest request)
     {
         var result = await authService.RegisterAsync(request);
 
@@ -26,7 +26,7 @@ public class AuthController(IAuthService authService) : ControllerBase
             return StatusCode((int)result.Code!, new BadRequestError { Status = (int)result.Code, Errors = result.Error! });
         }
 
-        return Ok(result.Data);
+        return Ok(true);
     }
 
     [HttpGet("confirm-email")]
